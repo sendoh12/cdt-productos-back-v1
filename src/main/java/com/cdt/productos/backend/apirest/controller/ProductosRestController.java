@@ -7,6 +7,9 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -38,7 +41,7 @@ public class ProductosRestController {
 		List<Productos> productoNuevo = null;
 		Map<String, Object> response = new HashMap<>();
 		try {
-			productoNuevo = productosService.searchProduct(productos.getEstado_producto());
+			productoNuevo = productosService.searchProduct(productos.getNombre_producto());
 			System.out.println(productoNuevo);
 		}catch(DataAccessException e) {
 			response.put("mensaje", "Error al realizar la consulta en la base de datos");
@@ -93,6 +96,20 @@ public class ProductosRestController {
 		response.put("mensaje", "Total de productos actualizado");
 		response.put("pelicula", guardarProducto);
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
+	}
+	
+	@GetMapping("/productos/page/{page}")
+	public Page<Productos> index(@PathVariable Integer page) {
+		Pageable pageable = PageRequest.of(page, 4);
+		return productosService.nuevosProductos(pageable);
+		
+	}
+	
+	@PostMapping("/productos/page/{page}")
+	public Page<Productos> indexPraginacion(@RequestBody Productos productos, @PathVariable Integer page) {
+		Pageable pageable = PageRequest.of(page, 4);
+		return productosService.productSearch(productos.getNombre_producto(), pageable);
+		
 	}
 
 }
